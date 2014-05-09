@@ -11,6 +11,10 @@
 //#include <visp_bridge/camera.h>
 #include <visp/vpPixelMeterConversion.h>
 
+#include <math.h>
+
+#define PI 3.14159265
+
 
 VSTask::VSTask()
     {
@@ -49,7 +53,7 @@ void VSTask::Init(vpImage<unsigned char> &I, ros::NodeHandle &nh, vpCameraParame
 
     //Creation vector of desired features:
     //Desired z
-    z_star = 1.0;
+    z_star = 1;
     //Desired area
     a_star = 53827.9;
 
@@ -90,7 +94,7 @@ void VSTask::Init(vpImage<unsigned char> &I, ros::NodeHandle &nh, vpCameraParame
 
 
 
-void VSTask::ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,vpCameraParameters &infoCam)
+void VSTask::ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,geometry_msgs::PoseStamped &msg_feat,vpCameraParameters &infoCam)
 {
     vpDisplay::display(*Im);
 
@@ -215,6 +219,38 @@ void VSTask::ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,vpCameraParame
 
     vel = 0.8* (s - s_star);
 
+
+    // Now we compute the orientation of the object
+
+    std::list<vpDot2>::iterator it = blob_list.begin();
+//
+//    it++;
+    vpImagePoint v0 = (*it).getCog();
+//    it = blob_list.end();
+//    it--;
+//    it --;
+//    vpImagePoint v2 = (*it).getCog();
+
+
+
+    vpDisplay::displayDotLine	(*Im,v0,polygon.getCenter(),vpColor::purple,2);
+
+    //vpImagePoint vec_diff = poly_vert[0] - poly_vert[1];
+
+       double v0_x,v0_y;
+       //double v1_x,v1_y;
+
+    vpPixelMeterConversion::convertPoint(infoCam, v0,v0_x,v0_y );
+   // vpPixelMeterConversion::convertPoint(infoCam, poly_vert[1],v1_x,v1_y );
+
+   //std::cout << "vd_x: " << v0_y-v1_y << std::endl;
+   // std::cout << "vd_y: " << v0_x-v1_x << std::endl;
+
+   double ang_z =  atan2 (v0_y-yn,v0_x-xn);
+
+   ang_z = ang_z - 45 * PI/180;
+
+
     std::cout << " s1: " << s[0] << std::endl;
     std::cout << " s2: " << s[1] << std::endl;
     std::cout << " s3: " << s[2] << std::endl;
@@ -229,6 +265,9 @@ void VSTask::ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,vpCameraParame
     std::cout << " vx: " << vel[0] << std::endl;
     std::cout << " vy: " << vel[1] << std::endl;
     std::cout << " vz: " << vel[2] << std::endl;
+
+    std::cout << " __________________________" << std::endl;
+    std::cout << " wz: " << (ang_z) << std::endl;
 
     std::cout << "*******************************" << std::endl;
 
@@ -259,9 +298,20 @@ void VSTask::ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,vpCameraParame
 
     msg_vel.twist.angular.x = 0;
     msg_vel.twist.angular.y = 0;
-    msg_vel.twist.angular.z = 0;
+    msg_vel.twist.angular.z = ang_z;
 
     msg_vel.header.stamp = now;
+
+
+    // Fill the actual features
+    msg_feat.pose.position.x = s[0];
+    msg_feat.pose.position.y = s[1];
+    msg_feat.pose.position.z = s[2];
+
+    msg_feat.pose.orientation.w = ang_z;
+    msg_feat.pose.orientation.x = 0;
+    msg_feat.pose.orientation.y = 0;
+    msg_feat.pose.orientation.z = 1;
 
 
     vpDisplay::flush(*Im);

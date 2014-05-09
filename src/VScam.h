@@ -33,6 +33,10 @@ class VScam
   * Publisher velocities
   */
   ros::Publisher vel_pub;
+  /**
+  * Publisher velocities
+  */
+  ros::Publisher feat_pub;
    /**
    * Last image ID  
    */
@@ -57,6 +61,11 @@ class VScam
   * Velocity message
   */
   geometry_msgs::TwistStamped vel;
+  /**
+  * Actual Features message
+  */
+  geometry_msgs::PoseStamped act_features_msg;
+
   /**
   * Camera parameteres
   */

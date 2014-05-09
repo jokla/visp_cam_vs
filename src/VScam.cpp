@@ -14,6 +14,9 @@
     // Publisher of the velocity commands
     //vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("vrep/Disc/SetTwist", 1);
     vel_pub = nh_.advertise<geometry_msgs::TwistStamped>("vrep/DesiredTwist0", 1);
+
+    feat_pub = nh_.advertise<geometry_msgs::PoseStamped>("vrep/DesFeatures0", 1);
+
     // Subscribe to the topic Camera info in order to receive the camera paramenter. The callback function will be called only one time.
     sub_cam_info = nh_.subscribe("vrep/Vision_sensor_0/Camerainfo", 1,&VScam::CameraInfoCb,this);
 
@@ -40,6 +43,8 @@
 	  std::cout << "Received CameraINFO"<<std::endl;
       // Convert the paramenter in the visp format
       infoCam = visp_bridge::toVispCameraParameters(msg);
+      infoCam.printParameters();
+
       // Stop the subscriber (we don't need it anymore)
       this->sub_cam_info.shutdown();
 
@@ -112,8 +117,10 @@
             else
             {
 				 // Function of object TASK that send me back the velocities
-				 Task.ComputeFeatures(vel,infoCam);
+				 Task.ComputeFeatures(vel,act_features_msg,infoCam);
 			     vel_pub.publish(vel);
+			     feat_pub.publish(act_features_msg);
+
 
             }
 

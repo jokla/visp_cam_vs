@@ -4,7 +4,7 @@
 
 //#include <sensor_msgs/CameraInfo.h>
 #include <geometry_msgs/TwistStamped.h>
-
+#include <geometry_msgs/PoseStamped.h>
 
 
 #include <Eigen/Geometry>
@@ -73,7 +73,7 @@ public:
   /**
   * Compute Feaures
   */
-  void ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,vpCameraParameters &infoCam);
+  void ComputeFeatures(geometry_msgs::TwistStamped &msg_vel,geometry_msgs::PoseStamped &msg_feat,vpCameraParameters &infoCam);
   /**
   * Set variable blobIsLost
   */
