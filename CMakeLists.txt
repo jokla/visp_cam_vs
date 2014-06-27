@@ -15,8 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 # TO FIX, VISP_DEFINITIONS should come from visp_bridge dependency
 find_package(VISP REQUIRED)
-add_definitions(${VISP_DEFINITIONS})
-
+link_directories(${VISP_LIBRARY_DIRS})
 
 find_package(Eigen REQUIRED)
 
@@ -93,7 +92,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES visp_cam_vs
 #  CATKIN_DEPENDS roscpp std_msgs visp_bridge
-  DEPENDS eigen
+  DEPENDS Eigen VISP
 )
 
 ###########
@@ -106,7 +105,7 @@ catkin_package(
 include_directories(
   ${catkin_INCLUDE_DIRS} 
   ${EIGEN_INCLUDE_DIRS}
-
+  ${VISP_INCLUDE_DIRS}
 )
 
 ## Declare a cpp library
